@@ -11,7 +11,7 @@ class JsonComparator:
     def parse(self):
         #parse and add all keys from first json
         for keynode in self.first:
-            keys = keynode.split('$')
+            keys = keynode.split('.')
             for key in keys:
                 self.seenkeys.add(key)
 
@@ -23,7 +23,7 @@ class JsonComparator:
                 continue
             if keynode in self.first:
                 #keys are same, so compare values
-                key = keynode.split('$')[-1]
+                key = keynode.split('.')[-1]
                 if self.second[keynode] != self.first[keynode]:
                     print("the key:{0} value changed from:{1} to {2} in the second json".format(key,self.first[keynode],self.second[keynode]))
             else:
