@@ -1,10 +1,9 @@
 class JsonComparator:
-    def __init__(self,first,second):
+    def __init__(self,first,second,exclude):
         self.first = self.flatten_json(first)
         self.second = self.flatten_json(second)
         self.seenkeys = set()
-        self.missingkeys = set()
-        self.exclude = None
+        self.exclude = exclude
         self.parse()
         self.execute()
 
@@ -17,9 +16,11 @@ class JsonComparator:
                 self.seenkeys.add(key)
 
 
-    def execute(self,exclude=None):
+    def execute(self):
         #walk through both dictionaries and identify missing keys
         for keynode in self.second:
+            if keynode in self.exclude:
+                continue
             if keynode in self.first:
                 #keys are same, so compare values
                 key = keynode.split('$')[-1]
@@ -45,11 +46,11 @@ class JsonComparator:
         def flatten(x, name=''):
             if type(x) is dict:
                 for a in x:
-                    flatten(x[a], name + a + '$')
+                    flatten(x[a], name + a + '.')
             elif type(x) is list:
                 i = 0
                 for a in x:
-                    flatten(a, name + str(i) + '$')
+                    flatten(a, name + str(i) + '.')
                     i += 1
             else:
                 out[name[:-1]] = x
@@ -61,4 +62,5 @@ class JsonComparator:
 x = { "workspace": "a123", "request": { "header": { "uuid": "00000000-0000-0008-6cfc-3b60d1900000", "workspace": "salesdata", "ts": None, "originatorType": "testUser", } } }
 y = { "request": { "header": { "identifier": "00000000-0000-0008-6cfc-3b60d1900000", "workspace": "salesdata", "ts": None, "originatorType": "devUser", "country":"usa", } } }
 
-obj = JsonComparator(x,y)
+ex = {"header.workspace"}
+obj = JsonComparator(x,y,ex)
